@@ -61,16 +61,17 @@ class Spider():
             # 爬取六次数据之后，发邮件通知
             if self.flag % 6 == 1:
                 run_stage = '时间：' + time.strftime("%Y-%m-%d-%H", time.localtime()) + '抓取完成'
-                self.email_send(run_stage, time.strftime("%Y-%m-%d-%H", time.localtime()))
+                self.email_send(run_stage, '水利数据'+time.strftime("%Y-%m-%d-%H", time.localtime()))
             self.flag = self.flag + 1
 
-    def getdriver(self, url):
+    def getdriver(self, url, Headless=True):
         profile = webdriver.FirefoxOptions()
         user_agent = 'Mozilla/5.0 (Linux; Android 7.0; BND-AL10 Build/HONORBND-AL10; wv) ' \
                      'AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 ' \
                      'MQQBrowser/6.2 TBS/044304 Mobile Safari/537.36 MicroMessenger/6.7.3.1340(0x26070331) ' \
                      'NetType/4G Language/zh_CN Process/tools'
-        profile.add_argument('-headless')  # 设置无头模式
+        if Headless:
+            profile.add_argument('-headless')  # 设置无头模式
         # profile.set_preference('network.proxy.type', 1)
         profile.set_preference('general.useragent.override', user_agent)
         driver = webdriver.Firefox(options=profile)
@@ -180,15 +181,14 @@ class Spider():
                                   'a+',encoding='utf-8') as f:
                     f.write('{}\t{}\t{} \n'.format(hang[4],hang[5], hang[6]))
 
-    def time_sleep(self):
+    def time_sleep(self, sleep_time=8*3600):
         print('{}数据爬取完成'.format(time.strftime("%m-%d-%H", time.localtime())))
         now = datetime.datetime.now()
-        sleep_time = 3600*8 + random.uniform(10, 100)
         end = now + datetime.timedelta(days=sleep_time / 86400)
         print('开始休眠，将休眠至：{}'.format(end))
         time.sleep(sleep_time)
 
-    def email_send(self, text, timea):
+    def email_send(self, text, subject):
         sender = ' 3140105713@zju.edu.cn'
         receivers = ['1554148540@qq.com']  # 接收邮件，可设置为你的QQ邮箱或者其他邮箱
         mail_host = "smtp.zju.edu.cn"  # 设置服务器
@@ -200,7 +200,6 @@ class Spider():
         message['From'] = Header("水利数据", 'utf-8')  # 发送者
         message['To'] = Header("hyy", 'utf-8')  # 接收者
 
-        subject = '水利数据获取情况' + timea
         message['Subject'] = Header(subject, 'utf-8')
 
         try:
