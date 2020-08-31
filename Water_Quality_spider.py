@@ -7,17 +7,7 @@
 import os
 import time
 import random
-import datetime
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.action_chains import ActionChains
-import smtplib
-import requests
-from selenium import webdriver
 from bs4 import BeautifulSoup
-from email.mime.text import MIMEText
-from email.header import Header
 from spider_1 import Spider
 
 

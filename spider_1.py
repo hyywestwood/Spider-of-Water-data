@@ -190,7 +190,7 @@ class Spider():
 
     def email_send(self, text, subject):
         sender = ' 3140105713@zju.edu.cn'
-        receivers = ['1554148540@qq.com']  # 接收邮件，可设置为你的QQ邮箱或者其他邮箱
+        receivers = ['1554148540@qq.com', '825548473@qq.com']  # 接收邮件，可设置为你的QQ邮箱或者其他邮箱
         mail_host = "smtp.zju.edu.cn"  # 设置服务器
         mail_user = "3140105713@zju.edu.cn"  # 用户名
         mail_pass = "5896westwood"  # 口令
