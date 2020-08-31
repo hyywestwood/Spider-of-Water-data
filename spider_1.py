@@ -92,7 +92,7 @@ class Spider():
                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0',
                    'Referer': 'http://xxfb.mwr.cn/sq_qgryl.html',
                    'Upgrade-Insecure-Requests': '1'}
-        time.sleep(10)
+        time.sleep(5)
         bf = BeautifulSoup(self.driver.page_source, 'html.parser')
         img = bf.find('div', id='hdcontent').find_all('img')
         url = 'http://xxfb.mwr.cn' + img[0].attrs['src']
@@ -100,7 +100,9 @@ class Spider():
         r = requests.get(url, headers=headers, stream=True)
         if r.status_code == 200:
             open(os.path.join(path2, self.report_time + '.png'), 'wb').write(r.content)  # 将内容写入图片
-            # open(os.path.join(path2, 'test.png'), 'wb').write(r.content)  # 将内容写入图片
+            print(self.report_time+'.png 已成功保存')
+            time.sleep(10)
+            # open(r'D:\pycharm\pachong\水利部-新版数据\全国日雨量\test2.png', 'wb').write(r.content)  # 将内容写入图片
 
     def get_data(self):
         while self.retry_counts > 0:
