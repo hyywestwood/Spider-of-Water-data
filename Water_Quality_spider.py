@@ -26,7 +26,7 @@ class Quality_spider(Spider):
         # 死循环，让爬虫一直运行
         while True:
             self.driver = self.getdriver(self.url, Headless=True)
-
+            self.water_quality = None
             # 获取水质数据
             while self.water_quality is None:
                 self.water_quality = self.get_data()

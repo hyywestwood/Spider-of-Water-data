@@ -39,6 +39,7 @@ class Spider():
         # 死循环，让爬虫一直运行
         while True:
             self.driver = self.getdriver(self.url)
+            self.djdh = None
             # 获取水利部官网数据
             while self.djdh is None:
                 self.djdh = self.get_data()
