@@ -42,7 +42,7 @@ class Spider_ajax():
 
     def run(self):
         while True:
-            self.data = self.get_data()
+            self.data = self.get_data(self.url)
             self.write_file(self.data, '新版Plus')
             self.time_sleep(4*3600)
 
@@ -53,8 +53,8 @@ class Spider_ajax():
         print('开始休眠，将休眠至：{}'.format(end))
         time.sleep(sleep_time)
 
-    def get_data(self):
-        r = requests.post(self.url, data=self.post_data, headers=self.headers)
+    def get_data(self, target_url):
+        r = requests.post(target_url, data=self.post_data, headers=self.headers)
         data_get = json.loads(r.text)
         pattern = re.compile(r'<[^>]+>', re.S)
         variables_name = list(map(lambda x: pattern.sub('', x), data_get["thead"]))
