@@ -131,3 +131,12 @@ dmypy.json
 /水质数据1/
 /笔趣阁—一念永恒/
 /长江水文/
+/proxy_pool-master/
+/config.cfg
+/水利部新版数据/
+/settings.py
+.idea/libraries/
+.idea/misc.xml
+.idea/modules.xml
+.idea/pachong.iml
+.idea/workspace.xml

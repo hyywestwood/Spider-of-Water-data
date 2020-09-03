@@ -15,12 +15,17 @@ import requests
 import time
 import json
 import re
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
+import configparser
 
 
 class Spider_ajax():
     def __init__(self, url):
         self.url = url
         self.path = os.path.abspath(os.path.join('.', '水质数据'))  # 数据文件存储路径
+        self.flag = 1
         self.data = None
         self.headers = {
             'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
@@ -44,7 +49,13 @@ class Spider_ajax():
         while True:
             self.data = self.get_data(self.url)
             self.write_file(self.data, '新版Plus')
-            self.time_sleep(4*3600)
+            self.time_sleep(6*3600)
+
+            # 爬取六次数据之后，发邮件通知
+            if self.flag % 12 == 1:
+                run_stage = '时间：' + time.strftime("%Y-%m-%d-%H", time.localtime()) + '抓取完成'
+                self.email_send(run_stage, '水质数据' + time.strftime("%Y-%m-%d-%H", time.localtime()))
+            self.flag = self.flag + 1
 
     def time_sleep(self, sleep_time=8 * 3600):
         print('{}数据爬取完成'.format(time.strftime("%m-%d-%H", time.localtime())))
@@ -84,6 +95,33 @@ class Spider_ajax():
                     hang[4], hang[5], hang[6], hang[7], hang[8], hang[9], hang[10], hang[11], hang[12], hang[13],
                     hang[14], hang[15], hang[16]))
 
+    def email_send(self, text, subject):
+        # 读取email配置
+        config = configparser.ConfigParser()
+        config.read("./config.cfg")
+        conf_email = config['email_setting']
+
+        sender = conf_email['sender']
+        receivers = conf_email['receivers'].split(',')  # 接收邮件，可设置为你的QQ邮箱或者其他邮箱
+        mail_host = conf_email['mail_host']  # 设置服务器
+        mail_user = conf_email['mail_user']  # 用户名
+        mail_pass = conf_email['mail_pass']  # 口令
+
+        # 三个参数：第一个为文本内容，第二个 plain 设置文本格式，第三个 utf-8 设置编码
+        message = MIMEText(text, 'plain', 'utf-8')
+        message['From'] = Header("水利数据", 'utf-8')  # 发送者
+        message['To'] = Header("hyy", 'utf-8')  # 接收者
+
+        message['Subject'] = Header(subject, 'utf-8')
+
+        try:
+            smtpObj = smtplib.SMTP()
+            smtpObj.connect(mail_host, 25)  # 25 为 SMTP 端口号
+            smtpObj.login(mail_user, mail_pass)
+            smtpObj.sendmail(sender, receivers, message.as_string())
+            print("邮件发送成功")
+        except smtplib.SMTPException:
+            print("Error: 无法发送邮件")
 
 if __name__ == '__main__':
     url = 'http://106.37.208.243:8068/GJZ/Ajax/Publish.ashx'

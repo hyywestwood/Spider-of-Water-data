@@ -4,6 +4,8 @@
 # @Email   : hyywestwood@zju.edu.cn
 # @File    : spider_1.py
 # @Software: PyCharm
+import configparser
+
 import requests
 from selenium import webdriver
 from bs4 import BeautifulSoup
@@ -192,11 +194,16 @@ class Spider():
         time.sleep(sleep_time)
 
     def email_send(self, text, subject):
-        sender = ' 3140105713@zju.edu.cn'
-        receivers = ['1554148540@qq.com', '825548473@qq.com']  # 接收邮件，可设置为你的QQ邮箱或者其他邮箱
-        mail_host = "smtp.zju.edu.cn"  # 设置服务器
-        mail_user = "3140105713@zju.edu.cn"  # 用户名
-        mail_pass = "5896westwood"  # 口令
+        # 读取email配置
+        config = configparser.ConfigParser()
+        config.read("./config.cfg")
+        conf_email = config['email_setting']
+
+        sender = conf_email['sender']
+        receivers = conf_email['receivers'].split(',')  # 接收邮件，可设置为你的QQ邮箱或者其他邮箱
+        mail_host = conf_email['mail_host']  # 设置服务器
+        mail_user = conf_email['mail_user']  # 用户名
+        mail_pass = conf_email['mail_pass']  # 口令
 
         # 三个参数：第一个为文本内容，第二个 plain 设置文本格式，第三个 utf-8 设置编码
         message = MIMEText(text, 'plain', 'utf-8')
