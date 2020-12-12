@@ -7,61 +7,68 @@
 import os
 import time
 import random
+
+import schedule
 from bs4 import BeautifulSoup
-from spider_1 import Spider
+from spider_2 import Spider
 
 
 class Quality_spider(Spider):
     def __init__(self, url):
         self.url = url
-        self.flag = 1  # 用于控制发邮件进行通知的时间
         self.retry_counts = 3
         self.water_quality = None
         self.path = os.path.abspath(os.path.join('.', '水质数据'))  # 数据文件存储路径
         self.folder = os.path.exists(self.path)  # 判断存储路径文件夹是否存在，没有则创建
         if not self.folder:
             os.makedirs(self.path)
+        self.driver = self.getdriver(self.url)
+        self.logger = self.log_setting()
 
     def run(self):
-        # 死循环，让爬虫一直运行
+        # schedule.every(10).minutes.do(self.single_process)
+        schedule.every().day.at("09:00").do(self.single_process)
+        schedule.every().day.at("13:00").do(self.single_process)
+        schedule.every().day.at("17:00").do(self.single_process)
+        schedule.every().day.at("21:00").do(self.single_process)
+        text = '水质数据爬取完成'
+        subject = '水质数据'
+        schedule.every(3).day.at("22:30").do(self.email_send, text, subject)
         while True:
-            self.driver = self.getdriver(self.url, Headless=True)
-            self.water_quality = None
-            # 获取水质数据
-            while self.water_quality is None:
-                self.water_quality = self.get_data()
+            schedule.run_pending()
 
-            self.driver.close()  # 浏览器关闭
+    def single_process(self):
+        time.sleep(30)
+        # 获取水质数据
+        self.water_quality = None
+        while self.water_quality is None and self.retry_counts > 0:
+            self.water_quality = self.get_data()
+
+        if self.water_quality is None:
+            self.logger.warning("水质数据抓取失败")
+        else:
             self.write_data(self.water_quality, '新版')  # 将获取的数据写入文件，简单起见，不设置新旧数据对比
-            # break
-            self.time_sleep(4*3600)  # 爬虫休眠
-
-            # 爬取六次数据之后，发邮件通知
-            if self.flag % 12 == 1:
-                run_stage = '时间：' + time.strftime("%Y-%m-%d-%H", time.localtime()) + '抓取完成'
-                self.email_send(run_stage, '水质数据'+time.strftime("%Y-%m-%d-%H", time.localtime()))
-            self.flag = self.flag + 1
+            self.logger.info("水质数据抓取完成")
 
     def get_data(self):
-        while self.retry_counts > 0:
-            try:
-                time.sleep(random.uniform(20, 40))  # 需要停留足够长的时间确保数据加载出来
-                # WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME, 'panel')))
-                retrytimes = 10
-                while retrytimes > 0:
-                    time.sleep(10*1)
-                    self.driver.switch_to.frame('mainframe')   # 网页中存在iframe需要switch一下才能正确得到结果
-                    html = self.driver.page_source
-                    bf = BeautifulSoup(html, 'html.parser')
-                    data_hd = self.trans(bf.find_all('tr'))
-                    retrytimes -= 1
-                    if data_hd:
-                        return data_hd
-                return None
-            except Exception:
-                print('错误发生，重新尝试获取，剩余次数{}'.format(self.retry_counts-1))
-                self.retry_counts -= 1
-        return None
+        try:
+            # time.sleep(60)  # 需要停留足够长的时间确保数据加载出来
+            # WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME, 'panel')))
+            self.driver.refresh()
+            time.sleep(60*2)
+            iframe = self.driver.find_element_by_tag_name("iframe")
+            self.driver.switch_to.frame(iframe)   # 网页中存在iframe需要switch一下才能正确得到结果
+            html = self.driver.page_source
+            bf = BeautifulSoup(html, 'html.parser')
+            data_hd = self.trans(bf.find_all('tr'))
+            if data_hd:
+                return data_hd
+            self.retry_counts -= 1
+            return None
+        except Exception:
+            print('错误发生，重新尝试获取，剩余次数{}'.format(self.retry_counts-1))
+            self.retry_counts -= 1
+            return None
 
     def trans(self, a):
         data = []

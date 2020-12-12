@@ -40,10 +40,13 @@ class Spider:
         self.logger = self.log_setting()
 
     def run(self):
-        schedule.every(10).minutes.do(self.single_process)
-        # schedule.every().day.at("09:00").do(self.single_process)
-        # schedule.every().day.at("21:00").do(self.single_process)
-        # schedule.every(2).day.at("22:00").do(Web_spider.email_send)
+        # schedule.every(10).minutes.do(self.single_process)
+        schedule.every().day.at("09:00").do(self.single_process)
+        schedule.every().day.at("21:00").do(self.single_process)
+        text = '水利数据爬取完成'
+        subject = '水利数据'
+        schedule.every(3).day.at("22:00").do(self.email_send, text, subject)
+        # schedule.every(2).day.at("22:00").do(self.email_send, text, subject)
         while True:
             schedule.run_pending()
 
@@ -106,7 +109,7 @@ class Spider:
         logger.setLevel(level=logging.INFO)
         handler = logging.FileHandler("log.txt")
         handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter('%(asctime)s - %(filename)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         console = logging.StreamHandler()
         console.setLevel(logging.INFO)
@@ -219,8 +222,7 @@ class Spider:
                                   'a+',encoding='utf-8') as f:
                     f.write('{}\t{}\t{} \n'.format(hang[4],hang[5], hang[6]))
 
-    @staticmethod
-    def email_send(text, subject):
+    def email_send(self, text, subject):
         # 读取email配置
         config = configparser.ConfigParser()
         config.read("./config.cfg")
@@ -233,22 +235,19 @@ class Spider:
         mail_pass = conf_email['mail_pass']  # 口令
 
         # 三个参数：第一个为文本内容，第二个 plain 设置文本格式，第三个 utf-8 设置编码
-        text = '水利数据爬取完成'
         message = MIMEText(text, 'plain', 'utf-8')
         message['From'] = Header("水利数据", 'utf-8')  # 发送者
         message['To'] = Header("hyy", 'utf-8')  # 接收者
-
-        subject = '水利数据-1'
         message['Subject'] = Header(subject, 'utf-8')
 
         try:
-            smtpObj = smtplib.SMTP()
-            smtpObj.connect(mail_host, 25)  # 25 为 SMTP 端口号
+            smtpObj = smtplib.SMTP(mail_host, 25)
+            # smtpObj.connect(mail_host, 25)  # 25 为 SMTP 端口号
             smtpObj.login(mail_user, mail_pass)
             smtpObj.sendmail(sender, receivers, message.as_string())
             print("邮件发送成功")
-        except smtplib.SMTPException:
-            print("Error: 无法发送邮件")
+        except smtplib.SMTPException as e:
+            print("Error: 无法发送邮件", e)
 
 
 if __name__ == '__main__':
