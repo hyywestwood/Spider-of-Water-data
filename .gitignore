@@ -140,3 +140,9 @@ dmypy.json
 .idea/modules.xml
 .idea/pachong.iml
 .idea/workspace.xml
+/log.txt
+log.txt
+paper/filedown.py
+paper/paper.pdf
+scihub/scihub.py
+/paper/
