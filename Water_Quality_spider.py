@@ -10,7 +10,7 @@ import random
 
 import schedule
 from bs4 import BeautifulSoup
-from spider_2 import Spider
+from water_data_spider import Spider
 
 
 class Quality_spider(Spider):
