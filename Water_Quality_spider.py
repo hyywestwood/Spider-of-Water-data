@@ -33,7 +33,7 @@ class Quality_spider(Spider):
         schedule.every().day.at("21:00").do(self.single_process)
         text = '水质数据爬取完成'
         subject = '水质数据'
-        schedule.every(3).day.at("22:30").do(self.email_send, text, subject)
+        schedule.every(3).days.at("22:30").do(self.email_send, text, subject)
         while True:
             schedule.run_pending()
 
@@ -93,7 +93,7 @@ class Quality_spider(Spider):
             folder = os.path.exists(path3)
             if not folder:
                 os.makedirs(path3)
-            with open(path3 + '\\{}-{}.txt'.format(hang[1], hang[2]), 'a+', encoding='utf-8') as f:
+            with open(os.path.join(path3, '{}-{}.txt'.format(hang[1], hang[2])), 'a+', encoding='utf-8') as f:
                 f.write('{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t \n'.format(time.strftime("%Y-", time.localtime()) + hang[3],
                                                     hang[4], hang[5],hang[6],hang[7],hang[8],hang[9],hang[10],hang[11],hang[12],hang[13],
                                                                                              hang[14],hang[15],hang[16]))

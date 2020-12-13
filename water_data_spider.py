@@ -45,7 +45,7 @@ class Spider:
         schedule.every().day.at("21:00").do(self.single_process)
         text = '水利数据爬取完成'
         subject = '水利数据'
-        schedule.every(3).day.at("22:00").do(self.email_send, text, subject)
+        schedule.every(3).days.at("22:00").do(self.email_send, text, subject)
         # schedule.every(2).day.at("22:00").do(self.email_send, text, subject)
         while True:
             schedule.run_pending()
@@ -144,28 +144,25 @@ class Spider:
             # open(r'D:\pycharm\pachong\水利部-新版数据\全国日雨量\test2.png', 'wb').write(r.content)  # 将内容写入图片
 
     def get_data(self):
+        self.retry_counts = 3
         while self.retry_counts > 0:
             try:
                 time.sleep(random.uniform(80, 100))  # 需要停留足够长的时间确保数据加载出来
                 WebDriverWait(self.driver, 60).until(EC.presence_of_element_located((By.ID, 'hdcontent')))
-                retrytimes = 10
-                while retrytimes > 0:
-                    time.sleep(30*1)
-                    html = self.driver.page_source
-                    bf = BeautifulSoup(html, 'html.parser')
-                    # self.report_time = str(bf.find('span', id='hddate').contents[0])
-                    data_hd = self.trans(bf)
-                    retrytimes -= 1
-                    if data_hd:
-                        return data_hd
-                return None
+                html = self.driver.page_source
+                bf = BeautifulSoup(html, 'html.parser')
+                # self.report_time = str(bf.find('span', id='hddate').contents[0])
+                data_hd = self.trans(bf)
+                if data_hd:
+                    return data_hd
+                self.retry_counts -= 1
             except Exception:
-                print('错误发生，重新尝试获取，剩余次数{}'.format(self.retry_counts-1))
+                self.logger.exception('错误发生，重新尝试获取{}'.format(self.retry_counts-1))
                 self.retry_counts -= 1
         return None
 
     def trans(self, a):
-        hd = a.find('div',id='hdtable').find_all('tr')
+        hd = a.find('div', id='hdtable').find_all('tr')
         data_hd = []
         for hang in hd:
             zhandian = []
@@ -196,8 +193,8 @@ class Spider:
                 folder = os.path.exists(path3)
                 if not folder:
                     os.makedirs(path3)
-                with open(path3 + '\\{}-{}-{}.txt'.format(hang[1], hang[2], hang[3]),
-                                  'a+',encoding='utf-8') as f:
+
+                with open(os.path.join(path3, '{}-{}-{}.txt'.format(hang[1], hang[2], hang[3])), 'a+', encoding='utf-8') as f:
                     f.write('{}\t{}\t{}\t{} \n'.format(time.strftime("%Y-", time.localtime()) + hang[4],
                                                                hang[5], hang[6], hang[7]))
 
@@ -207,8 +204,7 @@ class Spider:
                 folder = os.path.exists(path3)
                 if not folder:
                     os.makedirs(path3)
-                with open(path3 + '\\{}-{}-{}.txt'.format(hang[1], hang[2], hang[3]),
-                                  'a+',encoding='utf-8') as f:
+                with open(os.path.join(path3, '{}-{}-{}.txt'.format(hang[1], hang[2], hang[3])), 'a+', encoding='utf-8') as f:
                     f.write('{}\t{}\t{}\t{} \n'.format(time.strftime("%Y-%m-%d", time.localtime()), hang[4],
                                                                hang[5], hang[6], hang[7]))
 
@@ -218,8 +214,7 @@ class Spider:
                 folder = os.path.exists(path3)
                 if not folder:
                     os.makedirs(path3)
-                with open(path3 + '\\{}-{}-{}.txt'.format(hang[1], hang[2], hang[3]),
-                                  'a+',encoding='utf-8') as f:
+                with open(os.path.join(path3, '{}-{}-{}.txt'.format(hang[1], hang[2], hang[3])), 'a+', encoding='utf-8') as f:
                     f.write('{}\t{}\t{} \n'.format(hang[4],hang[5], hang[6]))
 
     def email_send(self, text, subject):
@@ -246,8 +241,8 @@ class Spider:
             smtpObj.login(mail_user, mail_pass)
             smtpObj.sendmail(sender, receivers, message.as_string())
             print("邮件发送成功")
-        except smtplib.SMTPException as e:
-            print("Error: 无法发送邮件", e)
+        except smtplib.SMTPException:
+            self.logger.exception("Error: 无法发送邮件")
 
 
 if __name__ == '__main__':
