@@ -7,7 +7,7 @@
 import os
 import time
 import random
-
+from selenium.webdriver.common.action_chains import ActionChains
 import schedule
 from bs4 import BeautifulSoup
 from water_data_spider import Spider
@@ -27,10 +27,10 @@ class Quality_spider(Spider):
 
     def run(self):
         # schedule.every(10).minutes.do(self.single_process)
-        schedule.every().day.at("09:00").do(self.single_process)
-        schedule.every().day.at("13:00").do(self.single_process)
-        schedule.every().day.at("17:00").do(self.single_process)
-        schedule.every().day.at("21:00").do(self.single_process)
+        schedule.every(4).hours.do(self.single_process)
+        # schedule.every().day.at("13:00").do(self.single_process)
+        # schedule.every().day.at("17:00").do(self.single_process)
+        # schedule.every().day.at("21:00").do(self.single_process)
         text = '水质数据爬取完成'
         subject = '水质数据'
         schedule.every(3).days.at("22:30").do(self.email_send, text, subject)
@@ -58,6 +58,12 @@ class Quality_spider(Spider):
             time.sleep(60*2)
             iframe = self.driver.find_element_by_tag_name("iframe")
             self.driver.switch_to.frame(iframe)   # 网页中存在iframe需要switch一下才能正确得到结果
+            click_btn = self.driver.find_element_by_xpath('//div[@class="dropdown"]')
+            ActionChains(self.driver).click(click_btn).perform()
+            time.sleep(5)
+            click_btn = self.driver.find_element_by_xpath('//li[@role="presentation"]')
+            ActionChains(self.driver).click(click_btn).perform()
+            time.sleep(60)
             html = self.driver.page_source
             bf = BeautifulSoup(html, 'html.parser')
             data_hd = self.trans(bf.find_all('tr'))
@@ -66,7 +72,7 @@ class Quality_spider(Spider):
             self.retry_counts -= 1
             return None
         except Exception:
-            print('错误发生，重新尝试获取，剩余次数{}'.format(self.retry_counts-1))
+            self.logger.exception("水质数据获取失败{}".format(self.retry_counts-1))
             self.retry_counts -= 1
             return None
 
@@ -103,3 +109,16 @@ if __name__ == '__main__':
     url = 'http://106.37.208.243:8068/GJZ/Business/Publish/Main.html'
     spider = Quality_spider(url)
     spider.run()
+
+    # iframe = spider.driver.find_element_by_tag_name("iframe")
+    # spider.driver.switch_to.frame(iframe)  # 网页中存在iframe需要switch一下才能正确得到结果
+    #
+    #
+    # click_btn = spider.driver.find_element_by_xpath('//div[@class="dropdown"]')
+    # ActionChains(spider.driver).click(click_btn).perform()
+    # click_btn = spider.driver.find_element_by_xpath('//li[@role="presentation"]')
+    # ActionChains(spider.driver).click(click_btn).perform()
+    #
+    # html = spider.driver.page_source
+    # bf = BeautifulSoup(html, 'html.parser')
+    # data_hd = spider.trans(bf.find_all('tr'))
