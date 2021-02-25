@@ -23,7 +23,7 @@ import logging
 
 
 class Spider:
-    def __init__(self, url):
+    def __init__(self, url,headless=True):
         self.url = url
         self.flag = 1  # 用于控制发邮件进行通知的时间
         self.retry_counts = 3
@@ -36,7 +36,7 @@ class Spider:
         self.folder = os.path.exists(self.path)  # 判断存储路径文件夹是否存在，没有则创建
         if not self.folder:
             os.makedirs(self.path)
-        self.driver = self.getdriver(self.url)
+        self.driver = self.getdriver(self.url, headless)
         self.logger = self.log_setting()
 
     def run(self):
@@ -247,5 +247,5 @@ class Spider:
 
 if __name__ == '__main__':
     url = 'http://xxfb.mwr.cn/sq_djdh.html'
-    Web_spider = Spider(url)
+    Web_spider = Spider(url,False)
     Web_spider.run()
