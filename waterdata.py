@@ -37,7 +37,7 @@ class Water_data_spider():
     
     def run(self):
         schedule.every().day.at("09:00").do(self.get_qgryl,'http://xxfb.mwr.cn/sq_qgryl.html',\
-            'http://xxfb.mwr.cn/hydroSearch/nationalDailyRainfall',self.cookie)
+            'http://xxfb.mwr.cn/hydroSearch/nationalDailyRainfall')
         schedule.every().day.at("09:00").do(self.single_run)
         schedule.every().day.at("21:00").do(self.single_run)
         text = '水利数据爬取完成'
@@ -86,11 +86,11 @@ class Water_data_spider():
         return data
     
     # 下载全国日雨量图片
-    def get_qgryl(self, refer_url, target_url, cookie):
+    def get_qgryl(self, refer_url, target_url):
         self.cookie = self.get_cookie() # 下载全国日雨量时，更新cookie
         self.baseheader['Referer'] = refer_url
         file_path = os.path.join(self.base_dir, '全国日雨量')
-        with closing(requests.get(url=target_url, headers= self.baseheader, cookies=cookie, stream=True, timeout=120)) as response:
+        with closing(requests.get(url=target_url, headers= self.baseheader, cookies=self.cookie, stream=True, timeout=120)) as response:
             chunk_size = 1024 # 单次请求最大值
             with open(os.path.join(file_path, time.strftime("%Y-%m-%d", time.localtime()) + '.png'), "wb") as file:
                 for data in response.iter_content(chunk_size=chunk_size):
