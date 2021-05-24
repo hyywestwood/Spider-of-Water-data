@@ -77,6 +77,7 @@ class water_quality(Water_data_spider):
 
 
 if __name__ == '__main__':
+    # github
     spider = water_quality()
     # spider.single_run() # 测试
     spider.run()
