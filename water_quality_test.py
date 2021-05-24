@@ -3,6 +3,7 @@ import requests,json,time,os,re
 import logging, schedule
 from waterdata import Water_data_spider
 
+# 重写
 class water_quality(Water_data_spider):
     def __init__(self):
         self.baseurl = 'http://106.37.208.243:8068/GJZ/Ajax/Publish.ashx'
