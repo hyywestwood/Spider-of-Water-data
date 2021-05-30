@@ -15,7 +15,7 @@ class Water_data_spider():
         'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
         'Connection': 'keep-alive',
         } 
-        self.base_dir = os.path.join(os.getcwd(), '水利部数据')
+        self.base_dir = os.path.join(os.getcwd(), '水利部新版数据')
         self.make_dir(self.base_dir)
         self.data_type_list = ['大江大河', '大型水库', '重点雨水情', '全国日雨量']
         for i in range(len(self.data_type_list)):
@@ -82,7 +82,7 @@ class Water_data_spider():
             po = requests.post(url=target_url, headers=self.baseheader, cookies=cookie)
         else:
             po = requests.get(url=target_url, headers=self.baseheader, cookies=cookie)
-        data = json.loads(po.content)['result']
+        data = json.loads((po.content.decode()))['result']
         return data
     
     # 下载全国日雨量图片
