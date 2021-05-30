@@ -109,7 +109,7 @@ class Water_data_spider():
                 if data_type == '大江大河':
                     f.write('{}\t{}\t{}\t{} \n'.format(item['tm'], item['zl'], item['ql'], item['wrz']))
                 elif data_type == '大型水库':
-                    f.write('{}\t{}\t{}\t{} \n'.format(item['tm'], item['rz'], item['wl'], item['inq'], item['damel']))
+                    f.write('{}\t{}\t{}\t{}\t{} \n'.format(item['tm'], item['rz'], item['wl'], item['inq'], item['damel']))
                 else:
                     f.write('{}\t{}\t{}\t \n'.format(item['tm'], item['dyp'], item['wth']))
         # pass
