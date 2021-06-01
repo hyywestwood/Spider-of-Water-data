@@ -41,6 +41,7 @@ class water_quality(Water_data_spider):
         self.data = self.get_realdata()
         self.data = self.dict_trans(self.data)
         self.write_data(self.data)
+        self.logger.info("水质数据抓取完成")
     
     def write_data(self, data):
         for hang in data:
@@ -53,7 +54,7 @@ class water_quality(Water_data_spider):
 
     def get_realdata(self):
         res = requests.post(url=self.baseurl, headers=self.baseheader, data=self.post_data)
-        real_data = json.loads(res.content)
+        real_data = json.loads(res.content.decode())
         return real_data
     
     # 整理数据，去除空格和非法字符
