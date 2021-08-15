@@ -36,17 +36,17 @@ class Water_data_spider():
         self.logger = self.log_setting()
     
     def run(self):
-        schedule.every().day.at("09:00").do(self.get_qgryl,'http://xxfb.mwr.cn/sq_qgryl.html',\
-            'http://xxfb.mwr.cn/hydroSearch/nationalDailyRainfall')
-        schedule.every().day.at("09:00").do(self.single_run)
-        schedule.every().day.at("21:00").do(self.single_run)
-        text = '水利数据爬取完成'
-        subject = '水利数据'
-        schedule.every(3).days.at("22:00").do(self.email_send, text, subject)
-        # schedule.every(2).day.at("22:00").do(self.email_send, text, subject)
-        while True:
-            schedule.run_pending()
-        # self.single_run()
+        # schedule.every().day.at("09:00").do(self.get_qgryl,'http://xxfb.mwr.cn/sq_qgryl.html',\
+        #     'http://xxfb.mwr.cn/hydroSearch/nationalDailyRainfall')
+        # schedule.every().day.at("09:00").do(self.single_run)
+        # schedule.every().day.at("21:00").do(self.single_run)
+        # text = '水利数据爬取完成'
+        # subject = '水利数据'
+        # schedule.every(3).days.at("22:00").do(self.email_send, text, subject)
+        # # schedule.every(2).day.at("22:00").do(self.email_send, text, subject)
+        # while True:
+        #     schedule.run_pending()
+        self.single_run()
         # self.get_qgryl(
         #     'http://xxfb.mwr.cn/sq_qgryl.html', 
         #     'http://xxfb.mwr.cn/hydroSearch/nationalDailyRainfall',
